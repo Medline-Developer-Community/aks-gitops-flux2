@@ -1,309 +1,261 @@
-kind: CustomResourceDefinition
+---
 apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
 metadata:
-  name: nginxingresscontrollers.approuting.kubernetes.azure.com
-  uid: 965c1e70-bf15-4b9d-8029-b1d60d6131fd
-  resourceVersion: '42783'
-  generation: 2
-  creationTimestamp: '2024-03-24T16:34:49Z'
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  managedFields:
-    - manager: aks-app-routing-operator
-      operation: Apply
-      apiVersion: apiextensions.k8s.io/v1
-      time: '2024-03-24T16:48:58Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        f:metadata:
-          f:annotations:
-            f:controller-gen.kubebuilder.io/version: {}
-        f:spec:
-          f:group: {}
-          f:names:
-            f:kind: {}
-            f:listKind: {}
-            f:plural: {}
-            f:shortNames: {}
-            f:singular: {}
-          f:scope: {}
-          f:versions: {}
-    - manager: Mozilla
-      operation: Update
-      apiVersion: apiextensions.k8s.io/v1
-      time: '2024-03-24T16:34:49Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        f:metadata:
-          f:annotations:
-            .: {}
-            f:controller-gen.kubebuilder.io/version: {}
-        f:spec:
-          f:conversion:
-            .: {}
-            f:strategy: {}
-          f:group: {}
-          f:names:
-            f:kind: {}
-            f:listKind: {}
-            f:plural: {}
-            f:shortNames: {}
-            f:singular: {}
-          f:scope: {}
-    - manager: kube-apiserver
-      operation: Update
-      apiVersion: apiextensions.k8s.io/v1
-      time: '2024-03-24T16:34:49Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        f:status:
-          f:acceptedNames:
-            f:kind: {}
-            f:listKind: {}
-            f:plural: {}
-            f:shortNames: {}
-            f:singular: {}
-          f:conditions:
-            k:{"type":"Established"}:
-              .: {}
-              f:lastTransitionTime: {}
-              f:message: {}
-              f:reason: {}
-              f:status: {}
-              f:type: {}
-            k:{"type":"NamesAccepted"}:
-              .: {}
-              f:lastTransitionTime: {}
-              f:message: {}
-              f:reason: {}
-              f:status: {}
-              f:type: {}
-      subresource: status
+  name: nginxingresscontrollers.approuting.kubernetes.azure.com
 spec:
   group: approuting.kubernetes.azure.com
   names:
-    plural: nginxingresscontrollers
-    singular: nginxingresscontroller
-    shortNames:
-      - nic
     kind: NginxIngressController
     listKind: NginxIngressControllerList
+    plural: nginxingresscontrollers
+    shortNames:
+      - nic
+    singular: nginxingresscontroller
   scope: Cluster
   versions:
-    - name: v1alpha1
-      served: true
-      storage: true
+    - additionalPrinterColumns:
+        - jsonPath: .spec.ingressClassName
+          name: IngressClass
+          type: string
+        - jsonPath: .spec.controllerNamePrefix
+          name: ControllerNamePrefix
+          type: string
+        - jsonPath: .status.conditions[?(@.type=="Available")].status
+          name: Available
+          type: string
+      name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: >-
-            NginxIngressController is the Schema for the nginxingresscontrollers
+          description: NginxIngressController is the Schema for the nginxingresscontrollers
             API
-          type: object
-          required:
-            - spec
           properties:
             apiVersion:
-              description: >-
-                APIVersion defines the versioned schema of this representation
-                of an object. Servers should convert recognized schemas to the
-                latest internal value, and may reject unrecognized values. More
-                info:
-                https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
               type: string
             kind:
-              description: >-
-                Kind is a string value representing the REST resource this
-                object represents. Servers may infer this from the endpoint the
-                client submits requests to. Cannot be updated. In CamelCase.
-                More info:
-                https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
               type: string
             metadata:
               type: object
             spec:
-              description: >-
-                NginxIngressControllerSpec defines the desired state of
-                NginxIngressController
-              type: object
               default:
                 controllerNamePrefix: nginx
                 ingressClassName: nginx.approuting.kubernetes.azure.com
-              required:
-                - controllerNamePrefix
-                - ingressClassName
+              description: NginxIngressControllerSpec defines the desired state of NginxIngressController
               properties:
                 controllerNamePrefix:
-                  description: >-
-                    ControllerNamePrefix is the name to use for the managed
-                    NGINX Ingress Controller resources.
-                  type: string
                   default: nginx
+                  description: ControllerNamePrefix is the name to use for the managed
+                    NGINX Ingress Controller resources.
                   maxLength: 60
                   minLength: 1
                   pattern: ^[a-z0-9][-a-z0-9]*[a-z0-9]$
-                  x-kubernetes-validations:
-                    - rule: self == oldSelf
-                      message: Value is immutable
-                ingressClassName:
-                  description: >-
-                    IngressClassName is the name of the IngressClass that will
-                    be used for the NGINX Ingress Controller. Defaults to
-                    metadata.name if not specified.
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
+                defaultSSLCertificate:
+                  description: DefaultSSLCertificate defines whether the NginxIngressController
+                    should use a certain SSL certificate by default. If this field is
+                    omitted, no default certificate will be used.
+                  properties:
+                    secret:
+                      description: Secret is a struct that holds the name and namespace
+                        fields used for the default ssl secret
+                      properties:
+                        name:
+                          maxLength: 253
+                          minLength: 1
+                          pattern: ^[a-z0-9][-a-z0-9\.]*[a-z0-9]$
+                          type: string
+                        namespace:
+                          maxLength: 253
+                          minLength: 1
+                          pattern: ^[a-z0-9][-a-z0-9\.]*[a-z0-9]$
+                          type: string
+                      required:
+                        - name
+                        - namespace
+                      type: object
+                  type: object
+                ingressClassName:
                   default: nginx.approuting.kubernetes.azure.com
+                  description: IngressClassName is the name of the IngressClass that
+                    will be used for the NGINX Ingress Controller. Defaults to metadata.name
+                    if not specified.
                   maxLength: 253
                   minLength: 1
                   pattern: ^[a-z0-9][-a-z0-9\.]*[a-z0-9]$
+                  type: string
                   x-kubernetes-validations:
-                    - rule: self == oldSelf
-                      message: Value is immutable
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 loadBalancerAnnotations:
-                  description: >-
-                    LoadBalancerAnnotations is a map of annotations to apply to
-                    the NGINX Ingress Controller's Service. Common annotations
-                    will be from the Azure LoadBalancer annotations here
-                    https://cloud-provider-azure.sigs.k8s.io/topics/loadbalancer/#loadbalancer-annotations
-                  type: object
                   additionalProperties:
                     type: string
-            status:
-              description: >-
-                NginxIngressControllerStatus defines the observed state of
-                NginxIngressController
+                  description: LoadBalancerAnnotations is a map of annotations to apply
+                    to the NGINX Ingress Controller's Service. Common annotations will
+                    be from the Azure LoadBalancer annotations here https://cloud-provider-azure.sigs.k8s.io/topics/loadbalancer/#loadbalancer-annotations
+                  type: object
+                scaling:
+                  description: Scaling defines configuration options for how the Ingress
+                    Controller scales
+                  properties:
+                    maxReplicas:
+                      description: MaxReplicas is the upper limit for the number of
+                        Ingress Controller replicas. It defaults to 100 pods.
+                      format: int32
+                      minimum: 1
+                      type: integer
+                    minReplicas:
+                      description: MinReplicas is the lower limit for the number of
+                        Ingress Controller replicas. It defaults to 2 pods.
+                      format: int32
+                      minimum: 1
+                      type: integer
+                    threshold:
+                      description: Threshold defines how quickly the Ingress Controller
+                        pods should scale based on workload. Rapid means the Ingress
+                        Controller will scale quickly and aggressively, which is the
+                        best choice for handling sudden and significant traffic spikes.
+                        Steady is the opposite, prioritizing cost-effectiveness. Steady
+                        is the best choice when fewer replicas handling more work is
+                        desired or when traffic isn't expected to fluctuate. Balanced
+                        is a good mix between the two that works for most use-cases.
+                        If unspecified, this field defaults to balanced.
+                      enum:
+                        - rapid
+                        - balanced
+                        - steady
+                      type: string
+                  type: object
+                  x-kubernetes-validations:
+                    - rule: (!has(self.minReplicas)) || (!has(self.maxReplicas)) || (self.minReplicas
+                        <= self.maxReplicas)
+              required:
+                - controllerNamePrefix
+                - ingressClassName
               type: object
+            status:
+              description: NginxIngressControllerStatus defines the observed state of
+                NginxIngressController
               properties:
                 collisionCount:
-                  description: >-
-                    Count of hash collisions for the managed resources. The App
-                    Routing Operator uses this field as a collision avoidance
-                    mechanism when it needs to create the name for the managed
-                    resources.
-                  type: integer
+                  description: Count of hash collisions for the managed resources. The
+                    App Routing Operator uses this field as a collision avoidance mechanism
+                    when it needs to create the name for the managed resources.
                   format: int32
                   maximum: 5
+                  type: integer
                 conditions:
-                  description: >-
-                    Conditions is an array of current observed conditions for
-                    the NGINX Ingress Controller
-                  type: array
+                  description: Conditions is an array of current observed conditions
+                    for the NGINX Ingress Controller
                   items:
-                    description: >-
-                      Condition contains details for one aspect of the current
-                      state of this API Resource. --- This struct is intended
-                      for direct use as an array at the field path
-                      .status.conditions.  For example, 
-                       type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
-                       // other fields }
-                    type: object
+                    description: "Condition contains details for one aspect of the current
+                    state of this API Resource. --- This struct is intended for direct
+                    use as an array at the field path .status.conditions.  For example,
+                    \n type FooStatus struct{ // Represents the observations of a
+                    foo's current state. // Known .status.conditions.type are: \"Available\",
+                    \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
+                    // +listType=map // +listMapKey=type Conditions []metav1.Condition
+                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
+                    protobuf:\"bytes,1,rep,name=conditions\"` \n // other fields }"
+                    properties:
+                      lastTransitionTime:
+                        description: lastTransitionTime is the last time the condition
+                          transitioned from one status to another. This should be when
+                          the underlying condition changed.  If that is not known, then
+                          using the time when the API field changed is acceptable.
+                        format: date-time
+                        type: string
+                      message:
+                        description: message is a human readable message indicating
+                          details about the transition. This may be an empty string.
+                        maxLength: 32768
+                        type: string
+                      observedGeneration:
+                        description: observedGeneration represents the .metadata.generation
+                          that the condition was set based upon. For instance, if .metadata.generation
+                          is currently 12, but the .status.conditions[x].observedGeneration
+                          is 9, the condition is out of date with respect to the current
+                          state of the instance.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      reason:
+                        description: reason contains a programmatic identifier indicating
+                          the reason for the condition's last transition. Producers
+                          of specific condition types may define expected values and
+                          meanings for this field, and whether the values are considered
+                          a guaranteed API. The value should be a CamelCase string.
+                          This field may not be empty.
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                        type: string
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                        type: string
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                          --- Many .condition.type values are consistent across resources
+                          like Available, but because arbitrary conditions can be useful
+                          (see .node.status.conditions), the ability to deconflict is
+                          important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                        type: string
                     required:
                       - lastTransitionTime
                       - message
                       - reason
                       - status
                       - type
-                    properties:
-                      lastTransitionTime:
-                        description: >-
-                          lastTransitionTime is the last time the condition
-                          transitioned from one status to another. This should
-                          be when the underlying condition changed.  If that is
-                          not known, then using the time when the API field
-                          changed is acceptable.
-                        type: string
-                        format: date-time
-                      message:
-                        description: >-
-                          message is a human readable message indicating details
-                          about the transition. This may be an empty string.
-                        type: string
-                        maxLength: 32768
-                      observedGeneration:
-                        description: >-
-                          observedGeneration represents the .metadata.generation
-                          that the condition was set based upon. For instance,
-                          if .metadata.generation is currently 12, but the
-                          .status.conditions[x].observedGeneration is 9, the
-                          condition is out of date with respect to the current
-                          state of the instance.
-                        type: integer
-                        format: int64
-                        minimum: 0
-                      reason:
-                        description: >-
-                          reason contains a programmatic identifier indicating
-                          the reason for the condition's last transition.
-                          Producers of specific condition types may define
-                          expected values and meanings for this field, and
-                          whether the values are considered a guaranteed API.
-                          The value should be a CamelCase string. This field may
-                          not be empty.
-                        type: string
-                        maxLength: 1024
-                        minLength: 1
-                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
-                      status:
-                        description: status of the condition, one of True, False, Unknown.
-                        type: string
-                        enum:
-                          - 'True'
-                          - 'False'
-                          - Unknown
-                      type:
-                        description: >-
-                          type of condition in CamelCase or in
-                          foo.example.com/CamelCase. --- Many .condition.type
-                          values are consistent across resources like Available,
-                          but because arbitrary conditions can be useful (see
-                          .node.status.conditions), the ability to deconflict is
-                          important. The regex it matches is
-                          (dns1123SubdomainFmt/)?(qualifiedNameFmt)
-                        type: string
-                        maxLength: 316
-                        pattern: >-
-                          ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                    type: object
+                  type: array
                   x-kubernetes-list-map-keys:
                     - type
                   x-kubernetes-list-type: map
                 controllerAvailableReplicas:
-                  description: >-
-                    ControllerAvailableReplicas is the number of available
+                  description: ControllerAvailableReplicas is the number of available
                     replicas of the NGINX Ingress Controller deployment
-                  type: integer
                   format: int32
+                  type: integer
                 controllerReadyReplicas:
-                  description: >-
-                    ControllerReadyReplicas is the number of ready replicas of
-                    the NGINX Ingress Controller deployment
-                  type: integer
+                  description: ControllerReadyReplicas is the number of ready replicas
+                    of the NGINX Ingress Controller deployment
                   format: int32
+                  type: integer
                 controllerReplicas:
-                  description: >-
-                    ControllerReplicas is the desired number of replicas of the
-                    NGINX Ingress Controller
-                  type: integer
+                  description: ControllerReplicas is the desired number of replicas
+                    of the NGINX Ingress Controller
                   format: int32
+                  type: integer
                 controllerUnavailableReplicas:
-                  description: >-
-                    ControllerUnavailableReplicas is the number of unavailable
+                  description: ControllerUnavailableReplicas is the number of unavailable
                     replicas of the NGINX Ingress Controller deployment
-                  type: integer
                   format: int32
+                  type: integer
                 managedResourceRefs:
-                  description: >-
-                    ManagedResourceRefs is a list of references to the managed
+                  description: ManagedResourceRefs is a list of references to the managed
                     resources
-                  type: array
                   items:
                     description: ManagedObjectReference is a reference to an object
-                    type: object
-                    required:
-                      - kind
-                      - name
                     properties:
                       apiGroup:
-                        description: >-
-                          APIGroup is the API group of the managed object. If
-                          not specified, the resource is in the core API group
+                        description: APIGroup is the API group of the managed object.
+                          If not specified, the resource is in the core API group
                         type: string
                       kind:
                         description: Kind is the kind of the managed object
@@ -312,42 +264,19 @@ spec:
                         description: Name is the name of the managed object
                         type: string
                       namespace:
-                        description: >-
-                          Namespace is the namespace of the managed object. If
-                          not specified, the resource is cluster-scoped
+                        description: Namespace is the namespace of the managed object.
+                          If not specified, the resource is cluster-scoped
                         type: string
+                    required:
+                      - kind
+                      - name
+                    type: object
+                  type: array
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
       subresources:
         status: {}
-      additionalPrinterColumns:
-        - name: IngressClass
-          type: string
-          jsonPath: .spec.ingressClassName
-        - name: ControllerNamePrefix
-          type: string
-          jsonPath: .spec.controllerNamePrefix
-        - name: Available
-          type: string
-          jsonPath: .status.conditions[?(@.type=="Available")].status
-  conversion:
-    strategy: None
-status:
-  conditions:
-    - type: NamesAccepted
-      status: 'True'
-      lastTransitionTime: '2024-03-24T16:34:49Z'
-      reason: NoConflicts
-      message: no conflicts found
-    - type: Established
-      status: 'True'
-      lastTransitionTime: '2024-03-24T16:34:49Z'
-      reason: InitialNamesAccepted
-      message: the initial names have been accepted
-  acceptedNames:
-    plural: nginxingresscontrollers
-    singular: nginxingresscontroller
-    shortNames:
-      - nic
-    kind: NginxIngressController
-    listKind: NginxIngressControllerList
-  storedVersions:
-    - v1alpha1
