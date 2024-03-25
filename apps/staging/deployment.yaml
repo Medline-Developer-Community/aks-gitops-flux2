@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aks-helloworld
-  namespace: hello-web-app-routing
+  namespace: podinfo
 spec:
   replicas: 1
   selector:
