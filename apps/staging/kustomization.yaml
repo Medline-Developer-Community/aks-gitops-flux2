@@ -4,3 +4,6 @@ resources:
   - ../base/podinfo
 patchesStrategicMerge:
   - podinfo-values.yaml
+  - deployment.yaml
+  - services.yaml
+  - ingress.yaml
